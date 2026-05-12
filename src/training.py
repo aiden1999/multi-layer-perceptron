@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def train(training_data, num_nodes, num_inputs):
+def train(training_data, num_nodes, num_inputs, use_momentum, step_size):
     # forward pass
     # backward pass
     # update weights and biases
@@ -12,10 +12,15 @@ def train(training_data, num_nodes, num_inputs):
 
     weights_input_hidden, weights_hidden_output = calculate_starting_weights(
         num_nodes, num_inputs
-    )  # TODO: rename weights variables
+    )
     bias_hidden, bias_output = calculate_starting_biases(num_nodes)
     u_hidden = np.zeros((num_nodes, 1))
     delta_hidden = np.zeros((num_nodes, 1))
+    weights_input_hidden_old = np.zeros((num_nodes, num_inputs))
+    weights_hidden_output_old = np.zeros((num_nodes, 1))
+    bias_hidden_old = np.zeros((num_nodes, 1))
+    bias_output_old = 0
+    alpha = 0.9
     repeat = True
     epoch_count = 0
     while repeat:  # FIX: this is nasty
@@ -23,7 +28,7 @@ def train(training_data, num_nodes, num_inputs):
         print(epoch_count)  # TODO: replace with logging
         for row in training_data:
             correct_output = row[-1]
-            u_output = forward_pass(
+            u_output, u_hidden = forward_pass(
                 row,
                 num_nodes,
                 num_inputs,
@@ -33,7 +38,7 @@ def train(training_data, num_nodes, num_inputs):
                 u_hidden,
                 bias_output,
             )
-            backward_pass(
+            delta_hidden, delta_output = backward_pass(
                 u_output,
                 correct_output,
                 num_nodes,
@@ -41,7 +46,26 @@ def train(training_data, num_nodes, num_inputs):
                 delta_hidden,
                 weights_hidden_output,
             )
-            update_weights_and_biases()
+            update_weights_and_biases(
+                use_momentum,
+                epoch_count,
+                num_nodes,
+                num_inputs,
+                weights_input_hidden_old,
+                weights_input_hidden,
+                step_size,
+                delta_hidden,
+                row,
+                weights_hidden_output_old,
+                weights_hidden_output,
+                bias_hidden_old,
+                bias_hidden,
+                delta_output,
+                u_hidden,
+                bias_hidden,
+                alpha,
+                bias_output_old,
+            )
         calculate_rmse()
         validate()
 
@@ -94,7 +118,7 @@ def forward_pass(
         sum_output += u_hidden[node] * weights_hidden_output[node]
     sum_output += bias_output
     u_output = 1 / (1 + np.exp(-sum_output))
-    return u_output
+    return u_output, u_hidden
 
 
 def backward_pass(
@@ -106,51 +130,85 @@ def backward_pass(
     for node in range(num_nodes):
         f_prime_hidden = u_hidden[node] * (1 - u_hidden[node])
         delta_hidden[node] = weights_hidden_output[node] * delta_output * f_prime_hidden
+    return delta_hidden, delta_output
 
 
-def update_weights_and_biases():
+def update_weights_and_biases(
+    use_momentum,
+    epoch_count,
+    num_nodes,
+    num_inputs,
+    weights_input_hidden_old,
+    weights_input_hidden,
+    step_size,
+    delta_hidden,
+    row,
+    weights_hidden_output_old,
+    weights_hidden_output,
+    bias_hidden_old,
+    bias_hidden,
+    delta_output,
+    u_hidden,
+    bias_output,
+    alpha,
+    bias_output_old,
+):
 
     # Update weights and biases
+    # 3 cases:
+    # 1. using momentum and its not the first epoch
+    # 2. using momentum and it is the first epoch
+    # 3. not using momentum
 
-    # With momentum
-    if use_momentum and (epoch_count != 1):
-        for i in range(num_nodes):
-            for j in range(num_inputs):
-                weight_diff = (
-                    weights_input_hidden[i, j] - weights_input_hidden_old[i, j]
+    if use_momentum and epoch_count == 1:
+        for node in range(num_nodes):
+            for input in range(num_inputs):
+                weights_input_hidden_old[node, input] = weights_input_hidden[
+                    node, input
+                ]
+                weights_input_hidden[node, input] += (
+                    step_size * delta_hidden[node] * row[input]
                 )
-                weights_input_hidden_old[i, j] = weights_input_hidden[i, j]
-                weights_input_hidden[i, j] += (
-                    step_size * delta_hidden[i] * float(training_data[k, j])
+            weights_hidden_output_old[node] = weights_hidden_output[node]
+            bias_hidden_old[node] = bias_hidden[node]
+            weights_hidden_output[node] += step_size * delta_output * u_hidden[node]
+            bias_hidden[node] += step_size * delta_hidden[node]
+        bias_output_old = bias_output
+        bias_output += step_size * delta_output
+
+    elif use_momentum:
+        for node in range(num_nodes):
+            for input in range(num_inputs):
+                weight_diff = (
+                    weights_input_hidden[node, input]
+                    - weights_input_hidden_old[node, input]
+                )
+                weights_input_hidden_old[node, input] = weights_input_hidden[
+                    node, input
+                ]
+                weights_input_hidden[node, input] += (
+                    step_size * delta_hidden[node] * row[input]
                 ) + (alpha * weight_diff)
-            weight_diff = weights_hidden_output[i] - weights_hidden_output_old[i]
-            weights_hidden_output_old[i] = weights_hidden_output[i]
-            weights_hidden_output[i] += +(step_size * delta_output * u_hidden[i]) + (
-                alpha * weight_diff
-            )
-            bias_diff = bias_hidden[i] - bias_hidden_old[i]
-            bias_hidden_old[i] = bias_hidden[i]
-            bias_hidden[i] += (step_size * delta_hidden[i]) + (alpha * bias_diff)
+            weight_diff = weights_hidden_output[node] - weights_hidden_output_old[node]
+            weights_hidden_output_old[node] = weights_hidden_output[node]
+            weights_hidden_output[node] += (
+                step_size * delta_output * u_hidden[node]
+            ) + (alpha * weight_diff)
+            bias_diff = bias_hidden[node] - bias_hidden_old[node]
+            bias_hidden_old[node] = bias_hidden[node]
+            bias_hidden[node] += (step_size * delta_hidden[node]) + (alpha * bias_diff)
         bias_diff = bias_output - bias_output_old
         bias_output_old = bias_output
         bias_output += (step_size * delta_output) + (alpha * bias_diff)
 
-    # without momentum
     else:
-        for i in range(num_nodes):
-            for j in range(num_inputs):
-                if use_momentum:
-                    weights_input_hidden_old[i, j] = weights_input_hidden[i, j]
-                weights_input_hidden[i, j] += (
-                    step_size * delta_hidden[i] * float(training_data[k, j])
+        for node in range(num_nodes):
+            for input in range(num_inputs):
+                weights_input_hidden[node, input] += (
+                    step_size * delta_hidden[node] * row[input]
                 )
-            if use_momentum:
-                weights_hidden_output_old[i] = weights_hidden_output[i]
-                bias_hidden_old[i] = bias_hidden[i]
-            weights_hidden_output[i] += step_size * delta_output * u_hidden[i]
-            bias_hidden[i] += step_size * delta_hidden[i]
-        if use_momentum:
-            bias_output_old = bias_output
+            weights_hidden_output[node] += step_size * delta_output * u_hidden[node]
+            bias_hidden[node] += step_size * delta_hidden[node]
         bias_output += step_size * delta_output
 
 

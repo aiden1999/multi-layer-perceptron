@@ -47,13 +47,9 @@ def main(*, num_nodes=6, step_size=0.1, use_momentum=True):
     epoch_count = 0
     repeat = True
     rmse_validation_old = 100
-    alpha = 0.9
-    weights_input_hidden_old = np.zeros((num_nodes, num_inputs))
-    weights_hidden_output_old = np.zeros((num_nodes, 1))
-    bias_hidden_old = np.zeros((num_nodes, 1))
     bias_output_old = 0
 
-    train(training_data, num_nodes, num_inputs)
+    train(training_data, num_nodes, num_inputs, use_momentum, step_size)
     test()
 
     rmse_training_file.close()
