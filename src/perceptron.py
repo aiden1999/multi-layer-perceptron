@@ -1,9 +1,19 @@
+from src import weight
 from src.node import HiddenNode, Node, OutputNode
 from src.weight import Weight
 
+import numpy as np
+
 
 class Perceptron:
-    def __init__(self, num_inputs: int, num_nodes: int):
+    def __init__(
+        self,
+        num_inputs: int,
+        num_nodes: int,
+        training_data: np.ndarray,
+        use_momentum: bool,
+        step_size: float,
+    ):
         self.input_nodes = []
         for input in range(num_inputs):
             input_node = Node(index=input)
@@ -16,13 +26,92 @@ class Perceptron:
 
         self.output_node = OutputNode(index=0, num_nodes=num_nodes)
 
-        self.weights_input_hidden = []
+        self.weights_ih = []
         for input_node in self.input_nodes:
+            input_node_weights = []
             for hidden_node in self.hidden_nodes:
                 weight = Weight(input_node, hidden_node, num_inputs)
-                self.weights_input_hidden.append(weight)
+                input_node_weights.append(weight)
+            self.weights_ih.append(input_node_weights)
 
-        self.weights_hidden_output = []
+        self.weights_ho = []
         for hidden_node in self.hidden_nodes:
             weight = Weight(hidden_node, self.output_node, num_nodes)
-            self.weights_hidden_output.append(weight)
+            self.weights_ho.append(weight)
+
+        self.epoch_count = 0
+        self.training_data = training_data
+        self.use_momentum = use_momentum
+        self.step_size = step_size
+        self.alpha = 0.9
+
+    def train(self):
+        repeat = True
+        while repeat:  # FIX: this is not ideal
+            self.epoch_count += 1
+            print(self.epoch_count)  # TODO: replace with logging
+            for row in self.training_data:
+                correct_output = row[-1]
+                self._forward_pass(row)
+                self._backward_pass(correct_output)
+
+    def _forward_pass(self, row):
+        self.output_node.sum = self.output_node.bias
+        for h in self.hidden_nodes:
+            h.sum = h.bias
+            for i in self.input_nodes:
+                h.sum += row[i.index] * self.weights_ih[i.index][h.index].value
+            h.activation_function()
+            self.output_node.sum += h.u * self.weights_ho[h.index].value
+        self.output_node.activation_function()
+
+    def _backward_pass(self, correct_output):
+        self.output_node.calculate_f_prime()
+        self.output_node.calculate_delta(correct_output)
+        for h in self.hidden_nodes:
+            h.calculate_f_prime()
+            h.calculate_delta(self.weights_ho[h.index].value, self.output_node.delta)
+
+    def _update_weights_and_biases(self, row):
+        if self.use_momentum and self.epoch_count == 1:
+            for h in self.hidden_nodes:
+                for i in self.input_nodes:
+                    weight_ih = self.weights_ih[i.index][h.index]
+                    weight_ih.update_old_value()
+                    weight_ih.update_new_value(self.step_size, row[i.index])
+                weight_ho = self.weights_ho[h.index]
+                weight_ho.update_old_value()
+                weight_ho.update_new_value(self.step_size, h.u)
+                h.update_old_bias()
+                h.update_new_bias(self.step_size)
+            self.output_node.update_old_bias()
+            self.output_node.update_new_bias(self.step_size)
+
+        elif self.use_momentum:
+            for h in self.hidden_nodes:
+                for i in self.input_nodes:
+                    weight_ih = self.weights_ih[i.index][h.index]
+                    weight_ih.update_diff()
+                    weight_ih.update_old_value()
+                    weight_ih.update_new_value(
+                        self.step_size, row[i.index], alpha=self.alpha
+                    )
+                weight_ho = self.weights_ho[h.index]
+                weight_ho.update_diff()
+                weight_ho.update_old_value()
+                weight_ho.update_new_value(self.step_size, h.u, alpha=self.alpha)
+                h.update_bias_diff()
+                h.update_old_bias()
+                h.update_new_bias(self.step_size, alpha=self.alpha)
+            self.output_node.update_bias_diff()
+            self.output_node.update_old_bias()
+            self.output_node.update_new_bias(self.step_size, alpha=self.alpha)
+
+        else:
+            for h in self.hidden_nodes:
+                for i in self.input_nodes:
+                    weight_ih = self.weights_ih[i.index][h.index]
+                    weight_ih.update_new_value(self.step_size, row[i.index])
+                self.weights_ho[h.index].update_new_value(self.step_size, h.u)
+                h.update_new_bias(self.step_size)
+            self.output_node.update_new_bias(self.step_size)

@@ -70,69 +70,6 @@ def train(training_data, num_nodes, num_inputs, use_momentum, step_size):
         validate()
 
 
-def calculate_starting_weights(num_nodes, num_inputs):
-    weights_input_hidden = np.zeros((num_nodes, num_inputs))
-    weights_hidden_output = np.zeros((num_nodes, 1))
-    lower_inputs = -2 / num_inputs
-    upper_inputs = 2 / num_inputs
-    lower_nodes = -2 / num_nodes
-    upper_nodes = 2 / num_nodes
-
-    for node in range(num_nodes):
-        for input in range(num_inputs):
-            weights_input_hidden[node, input] = np.random.uniform(
-                lower_inputs, upper_inputs
-            )
-        weights_hidden_output[node] = np.random.uniform(lower_nodes, upper_nodes)
-    return weights_input_hidden, weights_hidden_output
-
-
-def calculate_starting_biases(num_nodes):
-    bias_hidden = np.zeros((num_nodes, 1))
-    lower_nodes = -2 / num_nodes
-    upper_nodes = 2 / num_nodes
-
-    for node in range(num_nodes):
-        bias_hidden[node] = np.random.uniform(lower_nodes, upper_nodes)
-    bias_output = np.random.uniform(lower_nodes, upper_nodes)
-    return bias_hidden, bias_output
-
-
-def forward_pass(
-    row,
-    num_nodes,
-    num_inputs,
-    weights_input_hidden,
-    bias_hidden,
-    weights_hidden_output,
-    u_hidden,
-    bias_output,
-):
-    sum_output = 0
-    sum_hidden = np.zeros((num_nodes, 1))
-    for node in range(num_nodes):
-        for input in range(num_inputs):
-            sum_hidden[node] += row[input] * weights_input_hidden[node, input]
-        sum_hidden[node] += bias_hidden[node]
-        u_hidden[node] = 1 / (1 + np.exp(-sum_hidden[node]))
-        sum_output += u_hidden[node] * weights_hidden_output[node]
-    sum_output += bias_output
-    u_output = 1 / (1 + np.exp(-sum_output))
-    return u_output, u_hidden
-
-
-def backward_pass(
-    u_output, correct_output, num_nodes, u_hidden, delta_hidden, weights_hidden_output
-):
-    # Backward Pass
-    f_prime_output = u_output * (1 - u_output)
-    delta_output = (correct_output - u_output) * f_prime_output
-    for node in range(num_nodes):
-        f_prime_hidden = u_hidden[node] * (1 - u_hidden[node])
-        delta_hidden[node] = weights_hidden_output[node] * delta_output * f_prime_hidden
-    return delta_hidden, delta_output
-
-
 def update_weights_and_biases(
     use_momentum,
     epoch_count,

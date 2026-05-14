@@ -2,6 +2,7 @@ import argparse
 import numpy as np
 
 from ingest_data import get_datasets
+from src.perceptron import Perceptron
 from testing import test
 from training import train
 
@@ -20,35 +21,36 @@ def main(*, num_nodes=6, step_size=0.1, use_momentum=True):
 
     num_inputs = num_cols - 1
 
-    correct_output = 0
+    # correct_output = 0
+    #
+    # weights_input_hidden = np.zeros((num_nodes, num_inputs))
+    # bias_hidden = np.zeros((num_nodes, 1))
+    # weights_hidden_output = np.zeros((num_nodes, 1))
+    #
+    # lower_inputs = -2 / num_inputs
+    # upper_inputs = 2 / num_inputs
+    # lower_nodes = -2 / num_nodes
+    # upper_nodes = 2 / num_nodes
+    # for i in range(num_nodes):
+    #     for j in range(num_inputs):
+    #         weights_input_hidden[i, j] = np.random.uniform(lower_inputs, upper_inputs)
+    #     bias_hidden[i] = np.random.uniform(lower_inputs, upper_inputs) weights_hidden_output[i] = np.random.uniform(lower_nodes, upper_nodes) bias_output = np.random.uniform(lower_nodes, upper_nodes) sum_hidden = np.zeros((num_nodes, 1))
+    # u_hidden = np.zeros((num_nodes, 1))
+    # u_output = 0
+    # f_prime_output = 0
+    # f_prime_hidden = np.zeros((num_nodes, 1))
+    # delta_output = 0
+    # rmse_validation_sum = 0
+    # rmse_testing_sum = 0
+    # epoch_count = 0
+    # repeat = True
+    # rmse_validation_old = 100
+    # bias_output_old = 0
 
-    weights_input_hidden = np.zeros((num_nodes, num_inputs))
-    bias_hidden = np.zeros((num_nodes, 1))
-    weights_hidden_output = np.zeros((num_nodes, 1))
-
-    lower_inputs = -2 / num_inputs
-    upper_inputs = 2 / num_inputs
-    lower_nodes = -2 / num_nodes
-    upper_nodes = 2 / num_nodes
-    for i in range(num_nodes):
-        for j in range(num_inputs):
-            weights_input_hidden[i, j] = np.random.uniform(lower_inputs, upper_inputs)
-        bias_hidden[i] = np.random.uniform(lower_inputs, upper_inputs)
-        weights_hidden_output[i] = np.random.uniform(lower_nodes, upper_nodes)
-    bias_output = np.random.uniform(lower_nodes, upper_nodes)
-    sum_hidden = np.zeros((num_nodes, 1))
-    u_hidden = np.zeros((num_nodes, 1))
-    u_output = 0
-    f_prime_output = 0
-    f_prime_hidden = np.zeros((num_nodes, 1))
-    delta_output = 0
-    rmse_validation_sum = 0
-    rmse_testing_sum = 0
-    epoch_count = 0
-    repeat = True
-    rmse_validation_old = 100
-    bias_output_old = 0
-
+    perceptron = Perceptron(
+        num_inputs, num_nodes, training_data, use_momentum, step_size
+    )
+    perceptron.train()
     train(training_data, num_nodes, num_inputs, use_momentum, step_size)
     test()
 
