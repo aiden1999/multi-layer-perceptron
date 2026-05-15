@@ -1,10 +1,10 @@
 import argparse
 import numpy as np
 
-from ingest_data import get_datasets
+from src.ingest_data import get_datasets
 from src.perceptron import Perceptron
-from testing import test
-from training import train
+from src.testing import test
+from src.training import train
 
 
 def main(*, num_nodes=6, step_size=0.1, use_momentum=True):

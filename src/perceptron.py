@@ -1,4 +1,3 @@
-from src import weight
 from src.node import HiddenNode, Node, OutputNode
 from src.weight import Weight
 
@@ -54,6 +53,7 @@ class Perceptron:
                 correct_output = row[-1]
                 self._forward_pass(row)
                 self._backward_pass(correct_output)
+                self._update_weights_and_biases(row)
 
     def _forward_pass(self, row):
         self.output_node.sum = self.output_node.bias
