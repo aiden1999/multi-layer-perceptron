@@ -43,8 +43,11 @@ class Perceptron:
         self.use_momentum = use_momentum
         self.step_size = step_size
         self.alpha = 0.9
+        self.predicted_outputs = []
+        self.rmse_training = 0.0
 
     def train(self):
+        self._calculate_rmse()
         repeat = True
         while repeat:  # FIX: this is not ideal
             self.epoch_count += 1
@@ -54,6 +57,9 @@ class Perceptron:
                 self._forward_pass(row)
                 self._backward_pass(correct_output)
                 self._update_weights_and_biases(row)
+            self._calculate_rmse()
+            if self.epoch_count % 5 == 0:
+                self._validate()
 
     def _forward_pass(self, row):
         self.output_node.sum = self.output_node.bias
@@ -64,6 +70,7 @@ class Perceptron:
             h.activation_function()
             self.output_node.sum += h.u * self.weights_ho[h.index].value
         self.output_node.activation_function()
+        self.predicted_outputs.append(self.output_node.u)
 
     def _backward_pass(self, correct_output):
         self.output_node.calculate_f_prime()
@@ -115,3 +122,11 @@ class Perceptron:
                 self.weights_ho[h.index].update_new_value(self.step_size, h.u)
                 h.update_new_bias(self.step_size)
             self.output_node.update_new_bias(self.step_size)
+
+    def _calculate_rmse(self):
+        correct_outputs = self.training_data[:, -1:]
+        predicted_ouputs = np.array(self.predicted_outputs)
+        self.rmse_training = np.sqrt(np.mean(correct_outputs - predicted_ouputs) ** 2)
+
+    def _validate(self):
+        pass
