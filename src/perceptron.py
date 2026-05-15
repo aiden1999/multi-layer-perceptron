@@ -12,6 +12,7 @@ class Perceptron:
         training_data: np.ndarray,
         use_momentum: bool,
         step_size: float,
+        validation_data: np.ndarray,
     ):
         self.input_nodes = []
         for input in range(num_inputs):
@@ -40,28 +41,44 @@ class Perceptron:
 
         self.epoch_count = 0
         self.training_data = training_data
+        self.validation_data = validation_data
         self.use_momentum = use_momentum
         self.step_size = step_size
         self.alpha = 0.9
-        self.predicted_outputs = []
+        self.correct_outputs = training_data[:, -1]
+        self.predicted_outputs_training = []
+        self.predicted_outputs_validation = []
         self.rmse_training = 0.0
+        self.rmse_validation = 0.0
+        self.rmse_validation_old = 0.0
 
     def train(self):
-        self._calculate_rmse()
-        repeat = True
-        while repeat:  # FIX: this is not ideal
+        while self.rmse_validation < self.rmse_validation_old:
             self.epoch_count += 1
+            self.predicted_outputs_training = []
             print(self.epoch_count)  # TODO: replace with logging
             for row in self.training_data:
                 correct_output = row[-1]
-                self._forward_pass(row)
+                self._forward_pass(row, self.predicted_outputs_training)
                 self._backward_pass(correct_output)
                 self._update_weights_and_biases(row)
-            self._calculate_rmse()
+            self.rmse_training = self._calculate_rmse(
+                self.correct_outputs, self.predicted_outputs_training
+            )
             if self.epoch_count % 5 == 0:
+                self.predicted_outputs_validation = []
                 self._validate()
 
-    def _forward_pass(self, row):
+    def _validate(self):
+        if self.epoch_count != 5:
+            self._set_rmse_validation_old()
+        for row in self.validation_data:
+            self._forward_pass(row, self.predicted_outputs_validation)
+        self.rmse_validation = self._calculate_rmse(
+            self.correct_outputs, self.predicted_outputs_validation
+        )
+
+    def _forward_pass(self, row, predicted_outputs: list):
         self.output_node.sum = self.output_node.bias
         for h in self.hidden_nodes:
             h.sum = h.bias
@@ -70,7 +87,7 @@ class Perceptron:
             h.activation_function()
             self.output_node.sum += h.u * self.weights_ho[h.index].value
         self.output_node.activation_function()
-        self.predicted_outputs.append(self.output_node.u)
+        predicted_outputs.append(self.output_node.u)
 
     def _backward_pass(self, correct_output):
         self.output_node.calculate_f_prime()
@@ -123,10 +140,10 @@ class Perceptron:
                 h.update_new_bias(self.step_size)
             self.output_node.update_new_bias(self.step_size)
 
-    def _calculate_rmse(self):
-        correct_outputs = self.training_data[:, -1:]
-        predicted_ouputs = np.array(self.predicted_outputs)
-        self.rmse_training = np.sqrt(np.mean(correct_outputs - predicted_ouputs) ** 2)
+    def _calculate_rmse(self, correct_outputs, predicted_outputs):
+        correct_outputs = np.array(correct_outputs)
+        predicted_outputs = np.array(predicted_outputs)
+        return np.sqrt(np.mean(correct_outputs - predicted_outputs) ** 2)
 
-    def _validate(self):
-        pass
+    def _set_rmse_validation_old(self):
+        self.rmse_validation_old = self.rmse_validation
