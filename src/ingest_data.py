@@ -14,6 +14,7 @@ def get_datasets() -> list[np.ndarray]:
         [TODO:return]
     """
     df = pl.read_csv("data/cleaned_data.csv")
+    df = standardise_data(df)
     datasets = split_data(df)
     return datasets
 
@@ -42,3 +43,16 @@ def split_data(df: pl.DataFrame) -> list[np.ndarray]:
     testing_df = df[validation_end:].to_numpy()
 
     return [training_df, validation_df, testing_df]
+
+
+def standardise_data(df: pl.DataFrame) -> pl.DataFrame:
+    """[TODO:description]
+
+    Args:
+        df: [TODO:description]
+
+    Returns:
+        [TODO:return]
+    """
+    df = df.select((pl.all() - pl.all().min()) / (pl.all().max() - pl.all().min()))
+    return df
