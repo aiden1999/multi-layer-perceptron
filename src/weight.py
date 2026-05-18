@@ -21,10 +21,8 @@ class Weight:
     def update_old_value(self):
         self.value_old = self.value
 
-    def update_new_value(self, step_size, u, *, alpha):
-        self.value += step_size * self.right_node.delta * u
-        if alpha:
-            self.value += alpha * self.diff
+    def update_new_value(self, step_size, u, alpha=0.0):
+        self.value += (step_size * self.right_node.delta * u) + (alpha * self.diff)
 
     def update_diff(self):
         self.diff = self.value - self.value_old

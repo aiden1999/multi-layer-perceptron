@@ -25,7 +25,7 @@ class Node:
     def update_old_bias(self):
         self.bias_old = self.bias
 
-    def update_new_bias(self, step_size: float, *, alpha=0.0):
+    def update_new_bias(self, step_size: float, alpha=0.0):
         self.bias += (step_size * self.delta) + (alpha * self.bias_diff)
 
     def update_bias_diff(self):
