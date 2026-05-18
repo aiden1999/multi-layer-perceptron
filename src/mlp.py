@@ -9,7 +9,7 @@ from src.perceptron import Perceptron
 
 
 def main(*, num_nodes=6, step_size=0.1, use_momentum=True):
-    logger = setup_logger("mlp", "mlp.log")
+    logger = setup_logger(__name__, __name__ + ".log")
 
     logger.info("Getting data sets")
     training_data, validation_data, testing_data = get_datasets()
@@ -22,6 +22,7 @@ def main(*, num_nodes=6, step_size=0.1, use_momentum=True):
 
     logger.info("Training perceptron")
     perceptron.train()
+    logger.info("Testing perceptron")
     # test()
 
 

@@ -1,7 +1,10 @@
+import numpy as np
+
+from src.logger import setup_logger
 from src.node import HiddenNode, Node, OutputNode
 from src.weight import Weight
 
-import numpy as np
+logger = setup_logger(__name__, __name__ + ".log")
 
 
 class Perceptron:
@@ -45,29 +48,34 @@ class Perceptron:
         self.use_momentum = use_momentum
         self.step_size = step_size
         self.alpha = 0.9
-        self.correct_outputs = training_data[:, -1]
+        self.correct_outputs_training = training_data[:, -1]
         self.predicted_outputs_training = []
+        self.correct_outputs_validation = validation_data[:, -1]
         self.predicted_outputs_validation = []
         self.rmse_training = 0.0
         self.rmse_validation = 0.0
-        self.rmse_validation_old = 0.0
+        self.rmse_validation_old = 1000.0
 
     def train(self):
+        logger.info("Starting training")
         while self.rmse_validation < self.rmse_validation_old:
             self.epoch_count += 1
             self.predicted_outputs_training = []
-            print(self.epoch_count)  # TODO: replace with logging
+            logger.debug(f"Epoch {self.epoch_count} | RMSE {self.rmse_training}")
             for row in self.training_data:
                 correct_output = row[-1]
                 self._forward_pass(row, self.predicted_outputs_training)
                 self._backward_pass(correct_output)
                 self._update_weights_and_biases(row)
             self.rmse_training = self._calculate_rmse(
-                self.correct_outputs, self.predicted_outputs_training
+                self.correct_outputs_training, self.predicted_outputs_training
             )
             if self.epoch_count % 5 == 0:
                 self.predicted_outputs_validation = []
                 self._validate()
+                logger.debug(
+                    f"Old validation RMSE {self.rmse_validation_old} | New validation RMSE {self.rmse_validation}"
+                )
 
     def _validate(self):
         if self.epoch_count != 5:
@@ -75,7 +83,7 @@ class Perceptron:
         for row in self.validation_data:
             self._forward_pass(row, self.predicted_outputs_validation)
         self.rmse_validation = self._calculate_rmse(
-            self.correct_outputs, self.predicted_outputs_validation
+            self.correct_outputs_validation, self.predicted_outputs_validation
         )
 
     def _forward_pass(self, row, predicted_outputs: list):
