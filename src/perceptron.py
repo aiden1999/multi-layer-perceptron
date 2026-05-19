@@ -10,13 +10,17 @@ logger = setup_logger(__name__, __name__ + ".log")
 class Perceptron:
     def __init__(
         self,
-        num_inputs: int,
+        datasets: list[np.ndarray],
         num_nodes: int,
-        training_data: np.ndarray,
         use_momentum: bool,
         step_size: float,
-        validation_data: np.ndarray,
     ):
+        self.training_data = datasets[0]
+        self.validation_data = datasets[1]
+        self.testing_data = datasets[2]
+
+        num_inputs = np.shape(self.training_data)[1] - 1
+
         self.input_nodes = []
         for input in range(num_inputs):
             input_node = Node(index=input)
@@ -43,15 +47,15 @@ class Perceptron:
             self.weights_ho.append(weight)
 
         self.epoch_count = 0
-        self.training_data = training_data
-        self.validation_data = validation_data
         self.use_momentum = use_momentum
         self.step_size = step_size
         self.alpha = 0.9
-        self.correct_outputs_training = training_data[:, -1]
+        self.correct_outputs_training = self.training_data[:, -1]
         self.predicted_outputs_training = []
-        self.correct_outputs_validation = validation_data[:, -1]
+        self.correct_outputs_validation = self.validation_data[:, -1]
         self.predicted_outputs_validation = []
+        self.correct_outputs_testing = self.testing_data[:, 1]
+        self.predicted_outputs_testing = []
         self.rmse_training = 0.0
         self.rmse_validation = 0.0
         self.rmse_validation_old = 1000.0
@@ -76,6 +80,9 @@ class Perceptron:
                 logger.debug(
                     f"Old validation RMSE {self.rmse_validation_old} | New validation RMSE {self.rmse_validation}"
                 )
+
+    def test(self):
+        pass
 
     def _validate(self):
         if self.epoch_count != 5:
