@@ -2,7 +2,7 @@ import argparse
 
 from src.ingest_data import get_datasets
 from src.logger import setup_logger
-from src.perceptron import Perceptron
+from src.classes.perceptron import Perceptron
 
 
 def main(*, num_nodes=6, step_size=0.1, use_momentum=True):

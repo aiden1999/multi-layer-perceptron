@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.node import Node
+from src.classes.node import Node
 
 
 class Weight:

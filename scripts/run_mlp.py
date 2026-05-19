@@ -1,4 +1,4 @@
-import src.mlp as mlp
+import src.main as mlp
 
 
 def main():

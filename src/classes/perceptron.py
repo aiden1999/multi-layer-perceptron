@@ -1,8 +1,8 @@
 import numpy as np
 
 from src.logger import setup_logger
-from src.node import HiddenNode, Node, OutputNode
-from src.weight import Weight
+from src.classes.node import HiddenNode, Node, OutputNode
+from src.classes.weight import Weight
 
 logger = setup_logger(__name__, __name__ + ".log")
 
