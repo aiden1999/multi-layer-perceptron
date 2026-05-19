@@ -59,6 +59,7 @@ class Perceptron:
         self.rmse_training = 0.0
         self.rmse_validation = 0.0
         self.rmse_validation_old = 1000.0
+        self.rmse_testing = 0.0
 
     def train(self):
         logger.info("Starting training")
@@ -82,7 +83,12 @@ class Perceptron:
                 )
 
     def test(self):
-        pass
+        for row in self.testing_data:
+            self._forward_pass(row, self.predicted_outputs_testing)
+        self.rmse_testing = self._calculate_rmse(
+            self.correct_outputs_testing, self.predicted_outputs_testing
+        )
+        logger.info(f"Testing RMSE {self.rmse_testing}")
 
     def _validate(self):
         if self.epoch_count != 5:
