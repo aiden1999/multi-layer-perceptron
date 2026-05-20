@@ -31,6 +31,10 @@ class Node:
     def update_bias_diff(self):
         self.bias_diff = self.bias - self.bias_old
 
+    def reset_bias(self):
+        self.bias = self.bias_old
+        self.bias_old = 0
+
 
 class HiddenNode(Node):
     def __init__(self, index: int, num_nodes: int):

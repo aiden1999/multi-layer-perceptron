@@ -26,3 +26,7 @@ class Weight:
 
     def update_diff(self):
         self.diff = self.value - self.value_old
+
+    def reset_values(self):
+        self.value = self.value_old
+        self.value_old = 0
