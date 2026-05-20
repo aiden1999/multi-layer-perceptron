@@ -5,7 +5,7 @@ from src.logger import setup_logger
 from src.classes.perceptron import Perceptron
 
 
-def main(*, num_nodes=6, step_size=0.1, use_momentum=True):
+def main(*, num_nodes=6, step_size=0.1, use_momentum=True, use_bold_driver=True):
     logger = setup_logger(__name__, __name__ + ".log")
 
     logger.info("Getting data sets")
@@ -13,10 +13,7 @@ def main(*, num_nodes=6, step_size=0.1, use_momentum=True):
 
     logger.info("Creating perceptron")
     perceptron = Perceptron(
-        datasets,
-        num_nodes,
-        use_momentum,
-        step_size,
+        datasets, num_nodes, use_momentum, step_size, use_bold_driver
     )
 
     logger.info("Training perceptron")
@@ -30,6 +27,12 @@ if __name__ == "__main__":
     parser.add_argument("--nodes", type=int, default=6)
     parser.add_argument("--step_size", type=float, default=0.1)
     parser.add_argument("--momentum", type=bool, default=True)
+    parser.add_argument("--bold_driver", type=bool, default=True)
 
     args = parser.parse_args()
-    main(num_nodes=args.nodes, step_size=args.step_size, use_momentum=args.momentum)
+    main(
+        num_nodes=args.nodes,
+        step_size=args.step_size,
+        use_momentum=args.momentum,
+        use_bold_driver=args.bold_driver,
+    )

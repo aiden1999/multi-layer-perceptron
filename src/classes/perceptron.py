@@ -14,6 +14,7 @@ class Perceptron:
         num_nodes: int,
         use_momentum: bool,
         step_size: float,
+        use_bold_driver: bool,
     ):
         self.training_data = datasets[0]
         self.validation_data = datasets[1]
@@ -48,6 +49,7 @@ class Perceptron:
 
         self.epoch_count = 0
         self.use_momentum = use_momentum
+        self.use_bold_driver = use_bold_driver
         self.step_size = step_size
         self.alpha = 0.9
         self.correct_outputs_training = self.training_data[:, -1]
@@ -57,6 +59,7 @@ class Perceptron:
         self.correct_outputs_testing = self.testing_data[:, 1]
         self.predicted_outputs_testing = []
         self.rmse_training = 0.0
+        self.rmse_training_old = 1000.0
         self.rmse_validation = 0.0
         self.rmse_validation_old = 1000.0
         self.rmse_testing = 0.0
@@ -72,9 +75,13 @@ class Perceptron:
                 self._forward_pass(row, self.predicted_outputs_training)
                 self._backward_pass(correct_output)
                 self._update_weights_and_biases(row)
+            if self.use_bold_driver:
+                self._set_rmse_training_old()
             self.rmse_training = self._calculate_rmse(
                 self.correct_outputs_training, self.predicted_outputs_training
             )
+            if self.use_bold_driver:
+                self._bold_driver()
             if self.epoch_count % 5 == 0:
                 self.predicted_outputs_validation = []
                 self._validate()
@@ -161,10 +168,33 @@ class Perceptron:
                 h.update_new_bias(self.step_size)
             self.output_node.update_new_bias(self.step_size)
 
+    def _revert_weights_and_biases(self):
+        for h in self.hidden_nodes:
+            for i in self.input_nodes:
+                self.weights_ih[i.index][h.index].reset_values()
+            self.weights_ho[h.index].reset_values()
+            h.reset_bias()
+        self.output_node.reset_bias()
+
     def _calculate_rmse(self, correct_outputs, predicted_outputs):
         correct_outputs = np.array(correct_outputs)
         predicted_outputs = np.array(predicted_outputs)
         return np.sqrt(np.mean(correct_outputs - predicted_outputs) ** 2)
 
+    def _set_rmse_training_old(self):
+        self.rmse_training_old = self.rmse_training
+
     def _set_rmse_validation_old(self):
         self.rmse_validation_old = self.rmse_validation
+
+    def _bold_driver(self):
+        if self.epoch_count % 10 == 0:
+            if self.rmse_training > self.rmse_training_old:
+                self._revert_weights_and_biases()
+                self.step_size *= 0.5
+                if self.step_size < 0.01:
+                    self.step_size = 0.01
+            else:
+                self.step_size *= 1.1
+                if self.step_size > 0.5:
+                    self.step_size = 0.5
