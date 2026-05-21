@@ -16,8 +16,14 @@ class Node:
     def reset_sum(self):
         self.sum = 0
 
-    def activation_function(self):
-        self.u = 1 / (1 + np.exp(-self.sum))
+    def activation_function(self, function):
+        match function:
+            case "sigmoid":
+                self.u = 1 / (1 + np.exp(-self.sum))
+            case "tanh":
+                ex = np.exp(self.sum)
+                e_x = np.exp(-self.sum)
+                self.u = (ex - e_x) / (ex + e_x)
 
     def calculate_f_prime(self):
         self.f_prime = self.u * (1 - self.u)
