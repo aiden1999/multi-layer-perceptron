@@ -10,8 +10,9 @@ def main(
     num_nodes=6,
     step_size=0.1,
     use_momentum=True,
-    use_bold_driver=True,
+    use_bold_driver=False,
     activation_function="sigmoid",
+    use_annealing=True,
 ):
     logger = setup_logger(__name__, __name__ + ".log")
 
@@ -26,6 +27,7 @@ def main(
         step_size,
         use_bold_driver,
         activation_function,
+        use_annealing,
     )
 
     logger.info("Training perceptron")
@@ -39,8 +41,9 @@ if __name__ == "__main__":
     parser.add_argument("--nodes", type=int, default=6)
     parser.add_argument("--step_size", type=float, default=0.1)
     parser.add_argument("--momentum", type=bool, default=True)
-    parser.add_argument("--bold_driver", type=bool, default=True)
+    parser.add_argument("--bold_driver", type=bool, default=False)
     parser.add_argument("--activation_function", type=str, default="sigmoid")
+    parser.add_argument("--annealing", type=bool, default=True)
 
     args = parser.parse_args()
     main(
@@ -49,4 +52,5 @@ if __name__ == "__main__":
         use_momentum=args.momentum,
         use_bold_driver=args.bold_driver,
         activation_function=args.activation_function,
+        use_annealing=args.annealing,
     )

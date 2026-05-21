@@ -16,6 +16,7 @@ class Perceptron:
         step_size: float,
         use_bold_driver: bool,
         activation_function: str,
+        use_annealing: bool,
     ):
         self.training_data = datasets[0]
         self.validation_data = datasets[1]
@@ -48,6 +49,12 @@ class Perceptron:
             weight = Weight(hidden_node, self.output_node, num_nodes)
             self.weights_ho.append(weight)
 
+        self.use_annealing = use_annealing
+        if self.use_annealing:
+            self.inital_step_size = step_size
+            self.decay_rate = 0.01
+            self.min_step_size = 1e-5
+
         self.epoch_count = 0
         self.use_momentum = use_momentum
         self.use_bold_driver = use_bold_driver
@@ -71,6 +78,8 @@ class Perceptron:
         while self.rmse_validation < self.rmse_validation_old:
             self.epoch_count += 1
             self.predicted_outputs_training = []
+            if self.use_annealing:
+                self._set_step_size()
             logger.debug(f"Epoch {self.epoch_count} | RMSE {self.rmse_training}")
             for row in self.training_data:
                 correct_output = row[-1]
@@ -107,6 +116,10 @@ class Perceptron:
         self.rmse_validation = self._calculate_rmse(
             self.correct_outputs_validation, self.predicted_outputs_validation
         )
+
+    def _set_step_size(self):
+        step_size = self.inital_step_size * np.exp(-self.decay_rate * self.epoch_count)
+        self.step_size = max(step_size, self.min_step_size)
 
     def _forward_pass(self, row, predicted_outputs: list):
         self.output_node.sum = self.output_node.bias
@@ -194,8 +207,8 @@ class Perceptron:
             if self.rmse_training > self.rmse_training_old:
                 self._revert_weights_and_biases()
                 self.step_size *= 0.5
-                if self.step_size < 0.01:
-                    self.step_size = 0.01
+                if self.step_size < 1e-5:
+                    self.step_size = 1e-5
             else:
                 self.step_size *= 1.1
                 if self.step_size > 0.5:
