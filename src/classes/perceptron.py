@@ -15,6 +15,7 @@ class Perceptron:
         use_momentum: bool,
         step_size: float,
         use_bold_driver: bool,
+        activation_function: str,
     ):
         self.training_data = datasets[0]
         self.validation_data = datasets[1]
@@ -51,6 +52,7 @@ class Perceptron:
         self.use_momentum = use_momentum
         self.use_bold_driver = use_bold_driver
         self.step_size = step_size
+        self.activation_function = activation_function
         self.alpha = 0.9
         self.correct_outputs_training = self.training_data[:, -1]
         self.predicted_outputs_training = []
@@ -112,9 +114,9 @@ class Perceptron:
             h.sum = h.bias
             for i in self.input_nodes:
                 h.sum += row[i.index] * self.weights_ih[i.index][h.index].value
-            h.activation_function()
+            h.activation_function(self.activation_function)
             self.output_node.sum += h.u * self.weights_ho[h.index].value
-        self.output_node.activation_function()
+        self.output_node.activation_function(self.activation_function)
         predicted_outputs.append(self.output_node.u)
 
     def _backward_pass(self, correct_output):

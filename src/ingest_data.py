@@ -32,7 +32,7 @@ def split_data(df: pl.DataFrame) -> list[np.ndarray]:
     validation_ratio = 0.15
     # as implied, 15% of the data is used for testing
 
-    df = df.sample(fraction=1.0, shuffle=True, seed=4)
+    df = df.sample(fraction=1.0, shuffle=True)
 
     num_rows = len(df)
     training_end = int(num_rows * training_ratio)
