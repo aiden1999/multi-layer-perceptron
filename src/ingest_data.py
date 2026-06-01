@@ -3,11 +3,11 @@
 [TODO:description]
 """
 
-import numpy as np
+from numpy.typing import NDArray
 import polars as pl
 
 
-def get_datasets() -> list[np.ndarray]:
+def get_datasets() -> list[NDArray]:
     """[TODO:description]
 
     Returns:
@@ -19,7 +19,7 @@ def get_datasets() -> list[np.ndarray]:
     return datasets
 
 
-def split_data(df: pl.DataFrame) -> list[np.ndarray]:
+def split_data(df: pl.DataFrame) -> list[NDArray]:
     """[TODO:description]
 
     Args:

@@ -40,7 +40,7 @@ def ensure_log_directory(path: str):
     return log_directory
 
 
-def create_handlers(log_directory, log_file, level):
+def create_handlers(log_directory: pathlib.Path, log_file: str, level: int):
     log_format = "%(asctime)s %(name)s %(levelname)s %(message)s"
     date_format = "%Y-%m-%d %H:%M:%S"
     formatter = logging.Formatter(log_format, datefmt=date_format)

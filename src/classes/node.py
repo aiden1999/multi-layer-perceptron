@@ -16,7 +16,7 @@ class Node:
     def reset_sum(self):
         self.sum = 0
 
-    def activation_function(self, function):
+    def activation_function(self, function: str):
         match function:
             case "sigmoid":
                 self.u = 1 / (1 + np.exp(-self.sum))
@@ -48,7 +48,7 @@ class HiddenNode(Node):
         self.layer = "hidden"
         self.bias = np.random.uniform(-2 / num_nodes, 2 / num_nodes)
 
-    def calculate_delta(self, weight, delta_output):
+    def calculate_delta(self, weight: float, delta_output: float):
         self.delta = weight * delta_output * self.f_prime
 
 
@@ -58,5 +58,5 @@ class OutputNode(Node):
         self.layer = "output"
         self.bias = np.random.uniform(-2 / num_nodes, 2 / num_nodes)
 
-    def calculate_delta(self, correct_output):
+    def calculate_delta(self, correct_output: float):
         self.delta = (correct_output - self.u) * self.f_prime
