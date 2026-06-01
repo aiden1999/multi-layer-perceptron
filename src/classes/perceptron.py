@@ -1,8 +1,9 @@
 import numpy as np
+from numpy.typing import NDArray
 
-from src.logger import setup_logger
 from src.classes.node import HiddenNode, Node, OutputNode
 from src.classes.weight import Weight
+from src.logger import setup_logger
 
 logger = setup_logger(__name__, __name__ + ".log")
 
@@ -10,7 +11,7 @@ logger = setup_logger(__name__, __name__ + ".log")
 class Perceptron:
     def __init__(
         self,
-        datasets: list[np.ndarray],
+        datasets: list[NDArray[np.float64]],
         num_nodes: int,
         use_momentum: bool,
         step_size: float,
@@ -121,7 +122,7 @@ class Perceptron:
         step_size = self.inital_step_size * np.exp(-self.decay_rate * self.epoch_count)
         self.step_size = max(step_size, self.min_step_size)
 
-    def _forward_pass(self, row, predicted_outputs: list):
+    def _forward_pass(self, row: NDArray[np.float64], predicted_outputs: list[float]):
         self.output_node.sum = self.output_node.bias
         for h in self.hidden_nodes:
             h.sum = h.bias
@@ -132,14 +133,14 @@ class Perceptron:
         self.output_node.activation_function(self.activation_function)
         predicted_outputs.append(self.output_node.u)
 
-    def _backward_pass(self, correct_output):
+    def _backward_pass(self, correct_output: float):
         self.output_node.calculate_f_prime()
         self.output_node.calculate_delta(correct_output)
         for h in self.hidden_nodes:
             h.calculate_f_prime()
             h.calculate_delta(self.weights_ho[h.index].value, self.output_node.delta)
 
-    def _update_weights_and_biases(self, row):
+    def _update_weights_and_biases(self, row: NDArray[np.float64]):
         if self.use_momentum and self.epoch_count == 1:
             for h in self.hidden_nodes:
                 for i in self.input_nodes:
@@ -191,9 +192,13 @@ class Perceptron:
             h.reset_bias()
         self.output_node.reset_bias()
 
-    def _calculate_rmse(self, correct_outputs, predicted_outputs):
-        correct_outputs = np.array(correct_outputs)
-        predicted_outputs = np.array(predicted_outputs)
+    def _calculate_rmse(
+        self,
+        correct_outputs_raw: NDArray[np.float64],
+        predicted_outputs_raw: list[float],
+    ):
+        correct_outputs = np.array(correct_outputs_raw)
+        predicted_outputs = np.array(predicted_outputs_raw)
         return np.sqrt(np.mean(correct_outputs - predicted_outputs) ** 2)
 
     def _set_rmse_training_old(self):
