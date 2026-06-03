@@ -1,7 +1,10 @@
+"""Main script"""
+
 import src.main as mlp
 
 
 def main():
+    """Run main function."""
     mlp.main()
 
 
