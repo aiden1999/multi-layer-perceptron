@@ -21,7 +21,8 @@ def main(
     Args:
         num_nodes (int): Number of nodes to use in the hidden layer.
         step_size (float): Step size used when calculating new values.
-        activation_function (str): `tanh` or `sigmoid`.
+        activation_function (str): The type of activation function. `sigmoid` or
+            `tanh`.
         use_momentum (bool): Whether to use momentum improvement.
         use_bold_driver (bool): Whether to use bold driver improvement.
         use_annealing (bool): Whether to use simulated annealing improvement.
