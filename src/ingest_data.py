@@ -1,17 +1,14 @@
-"""[TODO:description]
-
-[TODO:description]
-"""
+"""Ingesting and transforming raw data for use with the perceptron."""
 
 from numpy.typing import NDArray
 import polars as pl
 
 
 def get_datasets() -> list[NDArray]:
-    """[TODO:description]
+    """Return transformed datasets.
 
     Returns:
-        [TODO:return]
+        List of transformed datasets.
     """
     df = pl.read_csv("data/cleaned_data.csv")
     df = standardise_data(df)
@@ -19,14 +16,27 @@ def get_datasets() -> list[NDArray]:
     return datasets
 
 
-def split_data(df: pl.DataFrame) -> list[NDArray]:
-    """[TODO:description]
+def standardise_data(df: pl.DataFrame) -> pl.DataFrame:
+    """Standardise data to be between 0 and 1.
 
     Args:
-        df: [TODO:description]
+        df: Raw data.
 
     Returns:
-        [TODO:return]
+        Standardised DataFrame.
+    """
+    df = df.select((pl.all() - pl.all().min()) / (pl.all().max() - pl.all().min()))
+    return df
+
+
+def split_data(df: pl.DataFrame) -> list[NDArray]:
+    """Splits data into different datasets for training, validation, and testing.
+
+    Args:
+        df: DataFrame containing all the data.
+
+    Returns:
+        List of DataFrames, one for each purpose.
     """
     training_ratio = 0.7
     validation_ratio = 0.15
@@ -43,16 +53,3 @@ def split_data(df: pl.DataFrame) -> list[NDArray]:
     testing_df = df[validation_end:].to_numpy()
 
     return [training_df, validation_df, testing_df]
-
-
-def standardise_data(df: pl.DataFrame) -> pl.DataFrame:
-    """[TODO:description]
-
-    Args:
-        df: [TODO:description]
-
-    Returns:
-        [TODO:return]
-    """
-    df = df.select((pl.all() - pl.all().min()) / (pl.all().max() - pl.all().min()))
-    return df

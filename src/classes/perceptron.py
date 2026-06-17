@@ -1,3 +1,5 @@
+"""Multi-layer perceptron"""
+
 import numpy as np
 from numpy.typing import NDArray
 
@@ -9,6 +11,38 @@ logger = setup_logger(__name__, __name__ + ".log")
 
 
 class Perceptron:
+    """Multi-layer perceptron class.
+
+    Attributes:
+        training_data: Dataset to use when training the perceptron.
+        validation_data: Datasest to use when validating the perceptron.
+        testing_data: Dataset to use when testing the perceptron.
+        input_nodes: List of nodes in the input layer.
+        hidden_nodes: List of nodes in the hidden layer.
+        output_node: Node in the output layer.
+        weights_ih: Weights between the input layer and the hidden layer.
+        weights_ho: Weights between the hidden layer and the output layer.
+        use_annealing: Whether to use simulated annealing improvement.
+        epoch_count: Number of epochs the perceptron has been through.
+        use_momentum: Whether to use momentum improvement.
+        use_bold_driver: Whether to use bold driver improvement.
+        step_size: Learning rate.
+        activation_function: The type of activation function. `sigmoid` or `tanh`.
+        alpha: Used with momentum, typically 0.9.
+        correct_outputs_training: Known outputs of the training dataset.
+        predicted_outputs_training: Predicted outputs of the training dataset.
+        correct_outputs_validation: Known outputs of the validation dataset.
+        predicted_outputs_validation: Predicted outputs of the validation dataset.
+        correct_outputs_testing: Known outputs of the testing dataset.
+        predicted_outputs_testing: Predicted outputs of the testing dataset.
+        rmse_training: Root mean squared error of the training outputs.
+        rmse_training_old: Previous RMSE of the training outputs.
+        rmse_validation: Root mean squared error of the validation outputs.
+        rmse_validation_old: Previous RMSE of the validation outputs.
+        rmse_testing: Root mean squared error of the testing outputs.
+        rmse_testing: Previous RMSE of the testing outputs.
+    """
+
     def __init__(
         self,
         datasets: list[NDArray[np.float64]],
@@ -19,6 +53,17 @@ class Perceptron:
         activation_function: str,
         use_annealing: bool,
     ):
+        """Initalise perceptron.
+
+        Args:
+            datasets: Datasets to be used by the perceptron.
+            num_nodes: Number of nodes in the hidden layer.
+            use_momentum: Whether to use the momentum improvement.
+            step_size: Learning rate.
+            use_bold_driver: Whether to use bold driver improvement.
+            activation_function: The type of activation function. `sigmoid` or `tanh`.
+            use_annealing: Whether to use simulated annealing improvement.
+        """
         self.training_data = datasets[0]
         self.validation_data = datasets[1]
         self.testing_data = datasets[2]
@@ -75,6 +120,7 @@ class Perceptron:
         self.rmse_testing = 0.0
 
     def train(self):
+        """Train the perceptron."""
         logger.info("Starting training")
         while self.rmse_validation < self.rmse_validation_old:
             self.epoch_count += 1
@@ -102,6 +148,7 @@ class Perceptron:
                 )
 
     def test(self):
+        """Test the perceptron."""
         for row in self.testing_data:
             self._forward_pass(row, self.predicted_outputs_testing)
         self.rmse_testing = self._calculate_rmse(
@@ -110,6 +157,7 @@ class Perceptron:
         logger.info(f"Testing RMSE {self.rmse_testing}")
 
     def _validate(self):
+        """Validate the perceptron."""
         if self.epoch_count != 5:
             self._set_rmse_validation_old()
         for row in self.validation_data:
@@ -119,10 +167,18 @@ class Perceptron:
         )
 
     def _set_step_size(self):
+        """Set the step size, only used with simulated annealing."""
         step_size = self.inital_step_size * np.exp(-self.decay_rate * self.epoch_count)
         self.step_size = max(step_size, self.min_step_size)
 
     def _forward_pass(self, row: NDArray[np.float64], predicted_outputs: list[float]):
+        """Forward pass through the perceptron.
+
+        Args:
+            row: Row of dataset that is being passed.
+            predicted_outputs: Predicted outputs from the dataset that is being
+                passed through.
+        """
         self.output_node.sum = self.output_node.bias
         for h in self.hidden_nodes:
             h.sum = h.bias
@@ -134,6 +190,12 @@ class Perceptron:
         predicted_outputs.append(self.output_node.u)
 
     def _backward_pass(self, correct_output: float):
+        """Backward pass through the perceptron.
+
+        Args:
+            correct_output: Known output value of the row of the dataset that is
+                being passed through.
+        """
         self.output_node.calculate_f_prime()
         self.output_node.calculate_delta(correct_output)
         for h in self.hidden_nodes:
@@ -141,6 +203,12 @@ class Perceptron:
             h.calculate_delta(self.weights_ho[h.index].value, self.output_node.delta)
 
     def _update_weights_and_biases(self, row: NDArray[np.float64]):
+        """Update old and current values of biases on nodes, and the weights between them.
+
+        Args:
+            row: Row of dataset that is being passed.
+
+        """
         if self.use_momentum and self.epoch_count == 1:
             for h in self.hidden_nodes:
                 for i in self.input_nodes:
@@ -185,6 +253,7 @@ class Perceptron:
             self.output_node.update_new_bias(self.step_size)
 
     def _revert_weights_and_biases(self):
+        """Reset weights and biases to previous values."""
         for h in self.hidden_nodes:
             for i in self.input_nodes:
                 self.weights_ih[i.index][h.index].reset_values()
@@ -196,18 +265,30 @@ class Perceptron:
         self,
         correct_outputs_raw: NDArray[np.float64],
         predicted_outputs_raw: list[float],
-    ):
+    ) -> float:
+        """Calculate root mean square error between known and predicted values.
+
+        Args:
+            correct_outputs_raw: Known outputs of the dataset.
+            predicted_outputs_raw: Predicted values of the dataset.
+
+        Returns:
+            Root mean square error.
+        """
         correct_outputs = np.array(correct_outputs_raw)
         predicted_outputs = np.array(predicted_outputs_raw)
         return np.sqrt(np.mean(correct_outputs - predicted_outputs) ** 2)
 
     def _set_rmse_training_old(self):
+        """Set the old RMSE for the training dataset to be the current one."""
         self.rmse_training_old = self.rmse_training
 
     def _set_rmse_validation_old(self):
+        """Set the old RMSE for the validation dataset to be the current one."""
         self.rmse_validation_old = self.rmse_validation
 
     def _bold_driver(self):
+        """Bold driver improvement."""
         if self.epoch_count % 10 == 0:
             if self.rmse_training > self.rmse_training_old:
                 self._revert_weights_and_biases()
