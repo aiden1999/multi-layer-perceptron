@@ -18,7 +18,7 @@ def setup_logger(
         level: Level of logging needed.
 
     Returns:
-        [TODO:return]
+        Logger.
     """
     log_directory = ensure_log_directory("logs")
     if log_directory is None:
@@ -36,11 +36,31 @@ def setup_logger(
 
 
 def ensure_log_directory(path: str):
+    """Create log directory.
+
+    Args:
+        path: Directory file path.
+
+    Returns:
+        Log directory.
+    """
     log_directory = os.makedirs(path, exist_ok=True)
     return log_directory
 
 
-def create_handlers(log_directory: pathlib.Path, log_file: str, level: int):
+def create_handlers(
+    log_directory: pathlib.Path, log_file: str, level: int
+) -> tuple[logging.FileHandler, logging.StreamHandler]:
+    """Create handlers for logging to files and to the console.
+
+    Args:
+        log_directory: Log directory path.
+        log_file: Log file name.
+        level: Level of logging to be used.
+
+    Returns:
+        File logging handler and console logging handler.
+    """
     log_format = "%(asctime)s %(name)s %(levelname)s %(message)s"
     date_format = "%Y-%m-%d %H:%M:%S"
     formatter = logging.Formatter(log_format, datefmt=date_format)
