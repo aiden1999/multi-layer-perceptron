@@ -2,9 +2,10 @@
 
 import argparse
 
+from src.classes.perceptron import Perceptron
+from src.classes.text_output import TextOutput
 from src.ingest_data import get_datasets
 from src.logger import setup_logger
-from src.classes.perceptron import Perceptron
 
 
 def main(
@@ -43,6 +44,10 @@ def main(
     perceptron.train()
     logger.info("Testing perceptron")
     perceptron.test()
+
+    text_output = TextOutput(num_nodes, perceptron)
+    logger.info("Writing results to output")
+    text_output.write_to_json()
 
 
 if __name__ == "__main__":
