@@ -20,8 +20,8 @@ class TextOutput:
     def write_to_json(self):
         output_dict = self._create_output()
         current_time = datetime.datetime.now()
-        file_name = current_time.strftime("%Y%m%d_%H%M%S")
-        with open(f"{file_name}.json", "w") as file:
+        file_name = f"data/output/{current_time.strftime("%Y%m%d_%H%M%S")}.json"
+        with open(file_name, "w") as file:
             json.dump(output_dict, file)
 
     def _create_output(self):
