@@ -38,19 +38,9 @@ class Node:
         """Set sum back to 0."""
         self.sum = 0
 
-    def activation_function(self, function: str):
-        """Transforms the calculated sum into the actual output.
-
-        Args:
-            function: The type of activation function. `sigmoid` or `tanh`.
-        """
-        match function:
-            case "sigmoid":
-                self.u = 1 / (1 + np.exp(-self.sum))
-            case "tanh":
-                ex = np.exp(self.sum)
-                e_x = np.exp(-self.sum)
-                self.u = (ex - e_x) / (ex + e_x)
+    def activation_function(self):
+        """Transforms the calculated sum into the actual output."""
+        self.u = 1 / (1 + np.exp(-self.sum))
 
     def calculate_f_prime(self):
         """Calculate the derivative of the activation function."""
