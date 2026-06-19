@@ -11,15 +11,17 @@ class TextOutput:
         self.used_momentum = perceptron.use_momentum
         self.used_bold_driver = perceptron.use_bold_driver
         self.used_annealing = perceptron.use_annealing
+        # epoch count
+        # rmses
         # nodes with biases
         # weights and the nodes between
         # data used in each set.
 
     def write_to_json(self):
-        output_dict = _create_output()
+        output_dict = self._create_output()
         current_time = datetime.datetime.now()
         file_name = current_time.strftime("%Y%m%d_%H%M%S")
-        with open(f"{file_name}.json") as file:
+        with open(f"{file_name}.json", "w") as file:
             json.dump(output_dict, file)
 
     def _create_output(self):
