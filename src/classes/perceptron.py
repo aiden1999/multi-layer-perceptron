@@ -27,7 +27,6 @@ class Perceptron:
         use_momentum: Whether to use momentum improvement.
         use_bold_driver: Whether to use bold driver improvement.
         step_size: Learning rate.
-        activation_function: The type of activation function. `sigmoid` or `tanh`.
         alpha: Used with momentum, typically 0.9.
         correct_outputs_training: Known outputs of the training dataset.
         predicted_outputs_training: Predicted outputs of the training dataset.
@@ -50,7 +49,6 @@ class Perceptron:
         use_momentum: bool,
         step_size: float,
         use_bold_driver: bool,
-        activation_function: str,
         use_annealing: bool,
     ):
         """Initalise perceptron.
@@ -61,7 +59,6 @@ class Perceptron:
             use_momentum: Whether to use the momentum improvement.
             step_size: Learning rate.
             use_bold_driver: Whether to use bold driver improvement.
-            activation_function: The type of activation function. `sigmoid` or `tanh`.
             use_annealing: Whether to use simulated annealing improvement.
         """
         self.training_data = datasets[0]
@@ -105,7 +102,6 @@ class Perceptron:
         self.use_momentum = use_momentum
         self.use_bold_driver = use_bold_driver
         self.step_size = step_size
-        self.activation_function = activation_function
         self.alpha = 0.9
         self.correct_outputs_training = self.training_data[:, -1]
         self.predicted_outputs_training = []
@@ -184,9 +180,9 @@ class Perceptron:
             h.sum = h.bias
             for i in self.input_nodes:
                 h.sum += row[i.index] * self.weights_ih[i.index][h.index].value
-            h.activation_function(self.activation_function)
+            h.activation_function()
             self.output_node.sum += h.u * self.weights_ho[h.index].value
-        self.output_node.activation_function(self.activation_function)
+        self.output_node.activation_function()
         predicted_outputs.append(self.output_node.u)
 
     def _backward_pass(self, correct_output: float):
