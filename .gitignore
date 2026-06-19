@@ -1,6 +1,7 @@
 # my stuff
 original.py
 *.txt
+data/output/*.json
 
 
 # Byte-compiled / optimized / DLL files
