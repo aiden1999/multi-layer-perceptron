@@ -1,3 +1,5 @@
+"""Output to JSON file."""
+
 import datetime
 import json
 
@@ -5,7 +7,35 @@ from src.classes.perceptron import Perceptron
 
 
 class TextOutput:
-    def __init__(self, num_nodes, perceptron: Perceptron):
+    """Text output class.
+
+    Attributes:
+        num_nodes: Number of nodes in the hidden layer.
+        step_size: Learning rate.
+        used_momentum: Whether the momentum improvement was used.
+        used_bold_driver: Whether the bold driver improvement was used.
+        used_annealing: Whether the simulated annealing improvement was used.
+        epoch_count: Number of epochs the perceptron went through.
+        rmse_training: Root mean squared error of the training outputs.
+        rmse_validation: Root mean squared error of the validation outputs.
+        rmse_testing: Root mean squared error of the testing outputs.
+        input_nodes: List of nodes in the input layer.
+        hidden_nodes: List of nodes in the hidden layer.
+        output_node: Node in the output layer.
+        weights_ih: Weights between the input layer and the hidden layer.
+        weights_ho: Weights between the hidden layer and the output layer.
+        training_data: Dataset used when training the perceptron.
+        validation_data: Dataset used when validating the perceptron.
+        testing_data: Dataset used when testing the perceptron.
+    """
+
+    def __init__(self, num_nodes: int, perceptron: Perceptron):
+        """Initialise text output.
+
+        Args:
+            num_nodes: Number of nodes in the hidden layer.
+            perceptron: Multi layer perceptron that was used.
+        """
         self.num_nodes = num_nodes
         self.step_size = perceptron.step_size
         self.used_momentum = perceptron.use_momentum
@@ -25,13 +55,19 @@ class TextOutput:
         self.testing_data = perceptron.testing_data.tolist()
 
     def write_to_json(self):
+        """Write perceptron information to JSON file."""
         output_dict = self._create_output()
         current_time = datetime.datetime.now()
         file_name = f"data/output/{current_time.strftime("%Y%m%d_%H%M%S")}.json"
         with open(file_name, "w") as file:
             json.dump(output_dict, file, indent=4)
 
-    def _create_output(self):
+    def _create_output(self) -> dict:
+        """Create output dictionary.
+
+        Returns:
+            Dictionary with perceptron information.
+        """
         output = {
             "parameters": {
                 "number_of_hidden_nodes": self.num_nodes,
