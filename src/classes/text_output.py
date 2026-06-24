@@ -27,7 +27,7 @@ class TextOutput:
         current_time = datetime.datetime.now()
         file_name = f"data/output/{current_time.strftime("%Y%m%d_%H%M%S")}.json"
         with open(file_name, "w") as file:
-            json.dump(output_dict, file)
+            json.dump(output_dict, file, indent=4)
 
     def _create_output(self):
         output = {
