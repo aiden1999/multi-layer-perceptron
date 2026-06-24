@@ -15,7 +15,7 @@ class Perceptron:
 
     Attributes:
         training_data: Dataset to use when training the perceptron.
-        validation_data: Datasest to use when validating the perceptron.
+        validation_data: Dataset to use when validating the perceptron.
         testing_data: Dataset to use when testing the perceptron.
         input_nodes: List of nodes in the input layer.
         hidden_nodes: List of nodes in the hidden layer.
