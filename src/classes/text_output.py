@@ -50,17 +50,17 @@ class TextOutput:
             },
             "weights": {"input_to_hidden": {}, "hidden_to_output": {}},
         }
+
         for h in self.hidden_nodes:
             output["biases"]["hidden_nodes"].update({h.index: h.bias})
-            output["weights"]["hidden_to_output"].update(
-                {h.index: self.weights_ho[h.index].value}
-            )
+            weight_ho = self.weights_ho[h.index].value
+            output["weights"]["hidden_to_output"].update({h.index: weight_ho})
 
         for i in self.input_nodes:
-            output["weights"]["input_to_hidden"].update({i.index: {}})
+            o_w_ih = output["weights"]["input_to_hidden"]
+            o_w_ih.update({i.index: {}})
             for h in self.hidden_nodes:
-                output["weights"]["input_to_hidden"][i.index].update(
-                    {h.index: self.weights_ih[i.index][h.index].value}
-                )
+                weight_ih = self.weights_ih[i.index][h.index].value
+                o_w_ih[i.index].update({h.index: weight_ih})
 
         return output
