@@ -2,6 +2,10 @@
 
 import numpy as np
 
+from src.logger import setup_logger
+
+logger = setup_logger(__name__, __name__ + ".log")
+
 
 class Node:
     """Base node class
@@ -25,18 +29,18 @@ class Node:
             index: Index of the node in the layer. Starts at 0.
         """
         self.index = index
-        self.bias = 0
-        self.bias_old = 0
-        self.bias_diff = 0
+        self.bias = 0.0
+        self.bias_old = 0.0
+        self.bias_diff = 0.0
         self.sum = 0.0
-        self.u = 0
-        self.f_prime = 0
-        self.delta = 0
+        self.u = 0.0
+        self.f_prime = 0.0
+        self.delta = 0.0
         self.layer = "input"
 
     def reset_sum(self):
         """Set sum back to 0."""
-        self.sum = 0
+        self.sum = 0.0
 
     def activation_function(self):
         """Transforms the calculated sum into the actual output."""
@@ -66,7 +70,7 @@ class Node:
     def reset_bias(self):
         """Reset bias to previous."""
         self.bias = self.bias_old
-        self.bias_old = 0
+        self.bias_old = 0.0
 
 
 class HiddenNode(Node):
