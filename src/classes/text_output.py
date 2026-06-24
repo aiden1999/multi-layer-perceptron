@@ -20,7 +20,9 @@ class TextOutput:
         self.output_node = perceptron.output_node
         self.weights_ih = perceptron.weights_ih
         self.weights_ho = perceptron.weights_ho
-        # data used in each set.
+        self.training_data = perceptron.training_data.tolist()
+        self.validation_data = perceptron.validation_data.tolist()
+        self.testing_data = perceptron.testing_data.tolist()
 
     def write_to_json(self):
         output_dict = self._create_output()
@@ -49,6 +51,11 @@ class TextOutput:
                 "output_node": self.output_node.bias,
             },
             "weights": {"input_to_hidden": {}, "hidden_to_output": {}},
+            "data": {
+                "training": self.training_data,
+                "validation": self.validation_data,
+                "testing": self.testing_data,
+            },
         }
 
         for h in self.hidden_nodes:
