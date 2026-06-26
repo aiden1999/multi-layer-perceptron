@@ -1,7 +1,11 @@
 """Ingesting and transforming raw data for use with the perceptron."""
 
-from numpy.typing import NDArray
 import polars as pl
+from numpy.typing import NDArray
+
+from src.logger import setup_logger
+
+logger = setup_logger(__name__, __name__ + ".log")
 
 
 def get_datasets() -> list[NDArray]:
@@ -25,8 +29,12 @@ def standardise_data(df: pl.DataFrame) -> pl.DataFrame:
     Returns:
         Standardised DataFrame.
     """
-    df = df.select((pl.all() - pl.all().min()) / (pl.all().max() - pl.all().min()))
-    return df
+    try:
+        df = df.select((pl.all() - pl.all().min()) / (pl.all().max() - pl.all().min()))
+        return df
+    except Exception as e:
+        logger.error(f"Failed to standardise data: {e}")
+        raise
 
 
 def split_data(df: pl.DataFrame) -> list[NDArray]:

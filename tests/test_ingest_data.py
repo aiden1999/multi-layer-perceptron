@@ -1,5 +1,6 @@
 import polars as pl
 import polars.testing as pl_testing
+import pytest
 
 from src.ingest_data import standardise_data
 
@@ -11,3 +12,10 @@ def test_standardise_data_works():
     expected_df = pl.DataFrame(expected_data)
     actual_df = standardise_data(test_df)
     pl_testing.assert_frame_equal(expected_df, actual_df)
+
+
+def test_standardise_data_throws_exception():
+    test_data = {"a": ["a", "b", "c"], "b": ["d", "e", "f"]}
+    test_df = pl.DataFrame(test_data)
+    with pytest.raises(Exception):
+        standardise_data(test_df)
