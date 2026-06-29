@@ -26,3 +26,12 @@ def test_calculate_f_prime_works():
     test_node.calculate_f_prime()
     actual_f_prime = test_node.f_prime
     assert expected_f_prime == actual_f_prime
+
+
+def test_update_old_bias_works():
+    test_node = Node(index=0)
+    test_node.bias = 3
+    expected_old_bias = 3
+    test_node.update_old_bias()
+    actual_old_bias = test_node.bias_old
+    assert expected_old_bias == actual_old_bias
