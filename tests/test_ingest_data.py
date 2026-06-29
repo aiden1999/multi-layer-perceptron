@@ -19,3 +19,15 @@ def test_standardise_data_throws_exception():
     test_df = pl.DataFrame(test_data)
     with pytest.raises(Exception):
         standardise_data(test_df)
+
+
+def test_split_data_training_df_right_length():
+    pass
+
+
+def test_split_data_validation_df_right_length():
+    pass
+
+
+def test_split_data_testing_df_right_length():
+    pass
