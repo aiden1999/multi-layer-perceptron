@@ -23,3 +23,16 @@ def test_update_new_value_no_alpha_works():
     test_weight.update_new_value(step_size=step_size, u=u)
     actual_value = test_weight.value
     assert expected_value == actual_value
+
+
+def test_update_new_value_with_alpha_works():
+    test_weight.value = 5
+    step_size = 0.5
+    test_weight.right_node.delta = 4
+    u = 3
+    alpha = 0.9
+    test_weight.diff = 10
+    expected_value = 20
+    test_weight.update_new_value(step_size=step_size, u=u, alpha=alpha)
+    actual_value = test_weight.value
+    assert expected_value == actual_value
