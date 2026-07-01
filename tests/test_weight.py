@@ -45,3 +45,12 @@ def test_update_diff_works():
     test_weight.update_diff()
     actual_diff = test_weight.diff
     assert expected_diff == actual_diff
+
+
+def test_reset_values_for_value():
+    test_weight.value = 2
+    test_weight.value_old = 3
+    expected_value = 3
+    test_weight.reset_values()
+    actual_value = test_weight.value
+    assert expected_value == actual_value
