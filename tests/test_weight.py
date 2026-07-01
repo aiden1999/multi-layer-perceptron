@@ -54,3 +54,12 @@ def test_reset_values_for_value():
     test_weight.reset_values()
     actual_value = test_weight.value
     assert expected_value == actual_value
+
+
+def test_reset_values_for_value_old():
+    test_weight.value = 2
+    test_weight.value_old = 3
+    expected_value_old = 0
+    test_weight.reset_values()
+    actual_value_old = test_weight.value_old
+    assert expected_value_old == actual_value_old
