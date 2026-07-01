@@ -69,3 +69,13 @@ def test_update_bias_diff_works():
     test_node.update_bias_diff()
     actual_bias_diff = test_node.bias_diff
     assert expected_bias_diff == actual_bias_diff
+
+
+def test_reset_bias_for_bias():
+    test_node = Node(index=0)
+    test_node.bias = 2
+    test_node.bias_old = 1
+    expected_bias = 1
+    test_node.reset_bias()
+    actual_bias = test_node.bias
+    assert expected_bias == actual_bias
