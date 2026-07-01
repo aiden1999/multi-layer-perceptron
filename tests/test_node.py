@@ -35,3 +35,14 @@ def test_update_old_bias_works():
     test_node.update_old_bias()
     actual_old_bias = test_node.bias_old
     assert expected_old_bias == actual_old_bias
+
+
+def test_update_new_bias_no_alpha_works():
+    test_node = Node(index=0)
+    test_node.bias = 10
+    step_size = 0.5
+    test_node.delta = 4
+    expected_bias = 12
+    test_node.update_new_bias(step_size)
+    actual_bias = test_node.bias
+    assert expected_bias == actual_bias
