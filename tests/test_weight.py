@@ -36,3 +36,12 @@ def test_update_new_value_with_alpha_works():
     test_weight.update_new_value(step_size=step_size, u=u, alpha=alpha)
     actual_value = test_weight.value
     assert expected_value == actual_value
+
+
+def test_update_diff_works():
+    test_weight.value = 20
+    test_weight.value_old = 9
+    expected_diff = 11
+    test_weight.update_diff()
+    actual_diff = test_weight.diff
+    assert expected_diff == actual_diff
