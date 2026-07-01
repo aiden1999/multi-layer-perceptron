@@ -89,3 +89,12 @@ def test_reset_bias_for_bias_old():
     test_node.reset_bias()
     actual_bias_old = test_node.bias_old
     assert expected_bias_old == actual_bias_old
+def test_hidden_node_calculate_delta_works():
+    test_hidden_node = HiddenNode(index=0, num_nodes=5)
+    weight = 2
+    delta_output = 3
+    test_hidden_node.f_prime = 4
+    expected_delta = 24
+    test_hidden_node.calculate_delta(weight=weight, delta_output=delta_output)
+    actual_delta = test_hidden_node.delta
+    assert expected_delta == actual_delta
