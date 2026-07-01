@@ -79,3 +79,13 @@ def test_reset_bias_for_bias():
     test_node.reset_bias()
     actual_bias = test_node.bias
     assert expected_bias == actual_bias
+
+
+def test_reset_bias_for_bias_old():
+    test_node = Node(index=0)
+    test_node.bias = 2
+    test_node.bias_old = 1
+    expected_bias_old = 0
+    test_node.reset_bias()
+    actual_bias_old = test_node.bias_old
+    assert expected_bias_old == actual_bias_old
