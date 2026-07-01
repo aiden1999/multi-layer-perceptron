@@ -1,4 +1,4 @@
-from src.classes.node import Node
+from src.classes.node import HiddenNode, Node, OutputNode
 
 
 def test_reset_sum_works():
@@ -89,6 +89,8 @@ def test_reset_bias_for_bias_old():
     test_node.reset_bias()
     actual_bias_old = test_node.bias_old
     assert expected_bias_old == actual_bias_old
+
+
 def test_hidden_node_calculate_delta_works():
     test_hidden_node = HiddenNode(index=0, num_nodes=5)
     weight = 2
@@ -97,4 +99,15 @@ def test_hidden_node_calculate_delta_works():
     expected_delta = 24
     test_hidden_node.calculate_delta(weight=weight, delta_output=delta_output)
     actual_delta = test_hidden_node.delta
+    assert expected_delta == actual_delta
+
+
+def test_output_node_calculate_delta_works():
+    test_output_node = OutputNode(index=0, num_nodes=5)
+    correct_output = 5
+    test_output_node.u = 2
+    test_output_node.f_prime = 3
+    expected_delta = 9
+    test_output_node.calculate_delta(correct_output=correct_output)
+    actual_delta = test_output_node.delta
     assert expected_delta == actual_delta
